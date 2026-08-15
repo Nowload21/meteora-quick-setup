@@ -1,6 +1,6 @@
 {
   "name": "meteora-quick-setup",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "description": "Chrome extension for preparing and creating Meteora DLMM SOL-side positions from presets.",
   "type": "module",

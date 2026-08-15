@@ -6,7 +6,7 @@ L’installation prend environ une minute et ne demande aucune commande techniqu
 
 Télécharge la dernière version ici :
 
-**[meteora-quick-setup-v0.1.8.zip](https://github.com/Nowload21/meteora-quick-setup/releases/latest/download/meteora-quick-setup-v0.1.8.zip)**
+**[meteora-quick-setup-v0.1.9.zip](https://github.com/Nowload21/meteora-quick-setup/releases/latest/download/meteora-quick-setup-v0.1.9.zip)**
 
 N’essaie pas d’ouvrir directement l’extension depuis le fichier ZIP.
 
@@ -25,7 +25,7 @@ Clique droit sur le fichier ZIP, choisis **Extraire tout**, puis confirme.
 1. Ouvre `chrome://extensions`.
 2. Active **Mode développeur** en haut à droite.
 3. Clique sur **Charger l’extension non empaquetée**.
-4. Choisis le dossier décompressé `meteora-quick-setup-v0.1.8`.
+4. Choisis le dossier décompressé `meteora-quick-setup-v0.1.9`.
 5. Le dossier sélectionné doit contenir directement le fichier `manifest.json`.
 
 Sur Brave, `brave://extensions` fonctionne également.
@@ -38,13 +38,18 @@ Sur Brave, `brave://extensions` fonctionne également.
 4. Choisis un preset dans Quick Setup.
 5. Vérifie le récapitulatif avant de cliquer sur **Create Position**.
 
-## Mettre à jour
+## Mettre à jour sans perdre ses presets
 
 1. Télécharge et décompresse le nouveau ZIP.
-2. Dans `chrome://extensions`, supprime l’ancienne version.
-3. Charge le nouveau dossier décompressé.
+2. Retrouve le dossier de l’ancienne version que tu avais chargé dans Chrome.
+3. Remplace les fichiers de ce dossier par ceux de la nouvelle version. Garde exactement le même dossier et le même chemin.
+4. Ouvre `chrome://extensions`.
+5. Clique sur l’icône **Recharger** de Meteora Quick Setup.
+6. Actualise la page Meteora.
 
-Les réglages peuvent être perdus lors d’une suppression complète de l’extension. Note la taille de ton portfolio et tes presets avant la mise à jour.
+Le numéro affiché sur la carte de l’extension doit maintenant être `0.1.9`. Cette méthode conserve normalement le portfolio et les presets enregistrés.
+
+Si tu ne retrouves plus l’ancien dossier, note d’abord tes réglages, supprime l’ancienne extension, puis charge le nouveau dossier décompressé. Une réinstallation complète peut effacer les réglages.
 
 ## Problèmes fréquents
 
