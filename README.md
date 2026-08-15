@@ -2,6 +2,32 @@
 
 Extension Chrome indépendante pour préparer et créer rapidement des positions DLMM token/SOL sur Meteora à partir de presets.
 
+## Installation rapide
+
+### 1. Télécharger l’extension
+
+Télécharge le fichier prêt à installer :
+
+**[Télécharger Meteora Quick Setup](https://github.com/Nowload21/meteora-quick-setup/releases/latest/download/meteora-quick-setup-v0.1.8.zip)**
+
+### 2. Décompresser le fichier
+
+Double-clique sur le fichier ZIP téléchargé. Un dossier `meteora-quick-setup-v0.1.8` sera créé.
+
+### 3. Charger l’extension dans Chrome ou Brave
+
+1. Ouvre `chrome://extensions` dans la barre d’adresse.
+2. Active **Mode développeur** en haut à droite.
+3. Clique sur **Charger l’extension non empaquetée**.
+4. Sélectionne le dossier `meteora-quick-setup-v0.1.8` décompressé.
+5. Épingle **Meteora Quick Setup** dans la barre des extensions.
+
+L’extension est prête. Ouvre ensuite une pool sur `app.meteora.ag/dlmm/...` ou `www.meteora.ag/dlmm/...` avec ton wallet déjà connecté.
+
+Si Chrome affiche une erreur, vérifie que tu sélectionnes bien le dossier décompressé contenant directement `manifest.json`, et non le fichier ZIP.
+
+[Guide d’installation détaillé](docs/INSTALL.md)
+
 ## Sécurité
 
 - L’extension ne stocke aucune clé privée.
@@ -12,7 +38,9 @@ Extension Chrome indépendante pour préparer et créer rapidement des positions
 - La simulation est active par défaut.
 - Les coûts non remboursables de création de bin arrays sont signalés séparément avant validation.
 
-## Installation locale
+## Installation depuis le code source
+
+Cette méthode est réservée aux développeurs. Pour une installation normale, utilise le ZIP ci-dessus.
 
 ```bash
 npm install
