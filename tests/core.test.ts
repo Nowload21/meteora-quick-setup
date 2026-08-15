@@ -57,4 +57,13 @@ describe("helpers", () => {
     expect(settings.panel.width).toBe(240);
     expect(settings.panel.height).toBe(400);
   });
+
+  it("réduit les anciennes grandes dimensions au format latéral compact", () => {
+    const settings = normalizeSettings({
+      ...DEFAULT_SETTINGS,
+      panel: { ...DEFAULT_SETTINGS.panel, width: 520, height: 900 }
+    });
+    expect(settings.panel.width).toBe(400);
+    expect(settings.panel.height).toBe(620);
+  });
 });

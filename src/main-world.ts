@@ -22,7 +22,7 @@ import { mountUI, type PoolView, type PreviewView, type QuickSetupUI, type Resul
 
 const PAGE_SOURCE = "meteora-quick-setup";
 const BRIDGE_SOURCE = "meteora-quick-setup-bridge";
-const VERSION = "0.1.6";
+const VERSION = "0.1.8";
 const MAX_COMPUTE_UNITS = 1_400_000;
 
 interface WalletProvider {
