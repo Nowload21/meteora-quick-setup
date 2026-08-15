@@ -53,23 +53,25 @@ const STYLE = `
   :host { all: initial; }
   * { box-sizing: border-box; }
   .panel {
-    position: fixed; z-index: 2147483646; right: 18px; bottom: 18px; width: 340px;
-    display: flex; flex-direction: column; max-height: calc(100vh - 20px); container-type: inline-size;
+    position: fixed; z-index: 2147483646; right: 12px; top: 72px; width: 320px;
+    display: flex; flex-direction: column; max-height: calc(100vh - 84px); container-type: inline-size;
     color: #f7f7fb; background: rgba(17, 17, 28, .97); border: 1px solid #313349;
-    border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,.48); overflow: hidden;
+    border-radius: 12px; box-shadow: 0 16px 44px rgba(0,0,0,.44); overflow: hidden;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 12px; line-height: 1.35; backdrop-filter: blur(14px);
     transition: width .18s ease;
   }
-  .header { display: flex; align-items: center; gap: 9px; padding: 11px 12px; border-bottom: 1px solid #2b2c40; cursor: grab; user-select: none; }
+  .header { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-bottom: 1px solid #2b2c40; cursor: grab; user-select: none; }
   .header.dragging { cursor: grabbing; }
-  .mark { display:grid; place-items:center; width:27px; height:27px; border-radius:8px; background:linear-gradient(145deg,#654cf0,#22c9dc); font-weight:900; }
+  .mark { display:grid; place-items:center; width:24px; height:24px; border-radius:7px; background:linear-gradient(145deg,#654cf0,#22c9dc); font-weight:900; }
   .title { flex:1; min-width:0; }
-  .title strong { display:block; font-size:12px; }
-  .title span { display:block; margin-top:1px; color:#777a92; font-size:10px; }
-  .icon-btn { display:grid; place-items:center; width:27px; height:27px; padding:0; color:#9da0b8; background:#1d1e2e; border:1px solid #303247; border-radius:7px; cursor:pointer; }
+  .title strong { display:flex; align-items:center; gap:6px; min-width:0; font-size:12px; }
+  .subtitle { display:block; margin-top:1px; color:#777a92; font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pool-inline { display:flex; align-items:center; gap:4px; min-width:0; color:#b8bacb; font-size:10px; font-weight:650; }
+  .pool-inline-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .icon-btn { display:grid; place-items:center; width:25px; height:25px; padding:0; color:#9da0b8; background:#1d1e2e; border:1px solid #303247; border-radius:7px; cursor:pointer; }
   .icon-btn:hover { color:white; border-color:#4c4f69; }
-  .body { min-height:0; padding:12px; overflow:auto; }
+  .body { min-height:0; padding:9px; overflow:auto; }
   .collapsed .body { display:none; }
   .without-pool { width: 220px; }
   .without-pool .body, .without-pool .collapse, .without-pool .resize-handle { display:none; }
@@ -77,43 +79,36 @@ const STYLE = `
   .resize-handle { position:absolute; right:1px; bottom:1px; width:18px; height:18px; cursor:nwse-resize; opacity:.55; }
   .resize-handle::after { content:""; position:absolute; right:4px; bottom:4px; width:7px; height:7px; border-right:2px solid #777b94; border-bottom:2px solid #777b94; }
   @container (max-width: 285px) {
-    .presets, .preview { grid-template-columns: 1fr; }
-    .price-wide { grid-column: auto; }
     .warning { display:none; }
   }
-  .pool { display:flex; align-items:flex-start; gap:8px; padding:9px; background:#171824; border:1px solid #292b3f; border-radius:9px; }
-  .pool-dot { width:7px; height:7px; margin-top:4px; border-radius:50%; background:#42d9a2; box-shadow:0 0 10px rgba(66,217,162,.5); }
+  .pool-dot { flex:0 0 auto; width:6px; height:6px; border-radius:50%; background:#42d9a2; box-shadow:0 0 8px rgba(66,217,162,.5); }
   .pool-dot.off { background:#f4a259; box-shadow:none; }
-  .pool-main { flex:1; min-width:0; }
-  .pool-name { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pool-meta { margin-top:2px; color:#777a91; font-size:10px; }
-  .refresh { color:#8d90aa; background:transparent; border:0; cursor:pointer; padding:2px 3px; }
-  .label { margin:13px 0 7px; color:#898ca5; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
-  .presets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
-  .preset { min-height:47px; padding:7px 8px; text-align:left; color:#b6b8cb; background:#191a29; border:1px solid #2c2e42; border-radius:9px; cursor:pointer; }
+  .label { margin:9px 0 5px; color:#898ca5; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+  .presets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+  .preset { min-height:39px; padding:5px 6px; text-align:left; color:#b6b8cb; background:#191a29; border:1px solid #2c2e42; border-radius:8px; cursor:pointer; }
   .preset:hover { border-color:#474a66; color:white; }
   .preset.active { color:white; border-color:#6257ed; background:linear-gradient(135deg,rgba(95,76,240,.2),rgba(34,201,220,.08)); box-shadow:0 0 0 1px rgba(98,87,237,.15); }
-  .preset-top { display:flex; align-items:center; gap:7px; font-weight:750; font-size:11px; }
-  .preset-sub { margin-top:4px; color:#777b94; font-size:10px; }
+  .preset-top { display:flex; align-items:center; gap:5px; font-weight:750; font-size:10px; }
+  .preset-sub { margin-top:2px; color:#777b94; font-size:9px; }
   .strategy-icon { display:flex; align-items:flex-end; gap:1px; width:24px; height:12px; }
   .strategy-icon i { display:block; width:2px; border-radius:2px 2px 0 0; background:#5b59d9; }
   .strategy-icon i:nth-child(2n) { background:#1bc6dd; }
   .empty { grid-column:1/-1; padding:12px; text-align:center; color:#686b82; border:1px dashed #303247; border-radius:9px; }
-  .preview { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
-  .metric { min-height:50px; padding:8px; background:#171824; border:1px solid #292b3e; border-radius:8px; }
+  .preview { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  .metric { min-height:42px; padding:6px 7px; background:#171824; border:1px solid #292b3e; border-radius:7px; }
   .metric span { display:block; color:#74778e; font-size:9px; text-transform:uppercase; letter-spacing:.05em; }
   .metric strong { display:block; margin-top:4px; color:#f1f2f8; font-size:11px; overflow:hidden; text-overflow:ellipsis; }
   .price-wide { grid-column:1/-1; }
   .non-refundable { grid-column:1/-1; display:flex; gap:8px; align-items:flex-start; padding:9px; color:#ffb557; background:rgba(223,129,31,.13); border:1px solid rgba(255,174,71,.32); border-radius:8px; }
   .non-refundable strong { display:block; color:#ffc474; font-size:11px; }
   .non-refundable span { display:block; margin-top:2px; color:#a98967; font-size:9px; }
-  .status { min-height:31px; margin-top:9px; padding:8px 9px; color:#999cb3; background:#151621; border-radius:8px; }
+  .status { min-height:27px; margin-top:7px; padding:6px 8px; color:#999cb3; background:#151621; border-radius:7px; }
   .status.error { color:#ff8796; background:rgba(177,44,66,.12); }
   .status.success { color:#58dca5; background:rgba(40,153,111,.12); }
   .status a { color:#6fc9ff; text-decoration:none; }
-  .create { width:100%; height:42px; margin-top:9px; color:white; background:linear-gradient(135deg,#5e4ce8,#386de8); border:0; border-radius:10px; font-weight:800; cursor:pointer; }
+  .create { width:100%; height:36px; margin-top:7px; color:white; background:linear-gradient(135deg,#5e4ce8,#386de8); border:0; border-radius:9px; font-weight:800; cursor:pointer; }
   .create:disabled { color:#66697e; background:#252638; cursor:not-allowed; }
-  .warning { margin-top:8px; color:#777a90; font-size:9px; text-align:center; }
+  .warning { margin-top:5px; color:#777a90; font-size:8px; text-align:center; }
 `;
 
 function strategyBars(strategy: StrategyName): string {
@@ -134,12 +129,15 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
     <section class="panel" aria-label="Meteora Quick Setup">
       <header class="header">
         <div class="mark">M</div>
-        <div class="title"><strong>Quick Setup</strong><span>DLMM · SOL-side</span></div>
+        <div class="title">
+          <strong>Quick Setup <span class="pool-inline"><i class="pool-dot off"></i><span class="pool-inline-name">Pool…</span></span></strong>
+          <span class="subtitle">Portfolio non défini</span>
+        </div>
+        <button class="icon-btn refresh" type="button" title="Actualiser la pool">↻</button>
         <button class="icon-btn pin" type="button" title="Épingler">◇</button>
         <button class="icon-btn collapse" type="button" title="Replier">−</button>
       </header>
       <div class="body">
-        <div class="pool"><i class="pool-dot off"></i><div class="pool-main"><div class="pool-name">Détection du pool…</div><div class="pool-meta">Ouvre une page DLMM token/SOL</div></div><button class="refresh" type="button" title="Actualiser">↻</button></div>
         <div class="label">Presets</div>
         <div class="presets"></div>
         <div class="label">Récapitulatif</div>
@@ -161,9 +159,9 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
   const pinButton = shadow.querySelector<HTMLButtonElement>(".pin")!;
   const collapseButton = shadow.querySelector<HTMLButtonElement>(".collapse")!;
   const poolDot = shadow.querySelector<HTMLElement>(".pool-dot")!;
-  const poolName = shadow.querySelector<HTMLElement>(".pool-name")!;
-  const poolMeta = shadow.querySelector<HTMLElement>(".pool-meta")!;
-  const subtitle = shadow.querySelector<HTMLElement>(".title span")!;
+  const poolName = shadow.querySelector<HTMLElement>(".pool-inline-name")!;
+  const poolInline = shadow.querySelector<HTMLElement>(".pool-inline")!;
+  const subtitle = shadow.querySelector<HTMLElement>(".subtitle")!;
   const resizeHandle = shadow.querySelector<HTMLElement>(".resize-handle")!;
   let currentSettings: Settings | null = null;
   let selected: number | null = null;
@@ -210,8 +208,8 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
       panel.style.bottom = "auto";
     }
     if (poolPageActive && !state.collapsed) {
-      panel.style.width = state.width === null ? "340px" : `${state.width}px`;
-      panel.style.height = state.height === null ? "auto" : `${Math.min(state.height, window.innerHeight - 20)}px`;
+      panel.style.width = state.width === null ? "320px" : `${state.width}px`;
+      panel.style.height = state.height === null ? "auto" : `${Math.min(state.height, Math.max(260, window.innerHeight - 84))}px`;
     } else {
       panel.style.height = "auto";
       if (!poolPageActive) panel.style.width = "220px";
@@ -258,8 +256,8 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
   });
   resizeHandle.addEventListener("pointermove", (event) => {
     if (!resizing || resizing.pointerId !== event.pointerId) return;
-    const width = Math.min(520, Math.max(240, resizing.width + event.clientX - resizing.startX));
-    const height = Math.min(window.innerHeight - 20, Math.max(260, resizing.height + event.clientY - resizing.startY));
+    const width = Math.min(400, Math.max(240, resizing.width + event.clientX - resizing.startX));
+    const height = Math.min(Math.max(260, window.innerHeight - 84), Math.max(260, resizing.height + event.clientY - resizing.startY));
     panel.style.width = `${width}px`;
     panel.style.height = `${height}px`;
   });
@@ -278,6 +276,9 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
   return {
     syncSettings(settings) {
       currentSettings = settings;
+      subtitle.textContent = settings.portfolioValue > 0
+        ? `Portfolio · ${settings.portfolioValue} ${settings.portfolioUnit}`
+        : "Portfolio non défini";
       if (selected !== null && !settings.presets[selected]?.enabled) selected = null;
       applyPanelState(settings.panel);
       renderPresets();
@@ -285,13 +286,12 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
     setPoolPage(active) {
       poolPageActive = active;
       panel.classList.toggle("without-pool", !active);
-      subtitle.textContent = active ? "DLMM · SOL-side" : "Aucun pool actif";
       if (currentSettings) applyPanelState(currentSettings.panel);
     },
     setPool(pool, message) {
       poolDot.classList.toggle("off", !pool);
-      poolName.textContent = pool?.poolName ?? "Pool indisponible";
-      poolMeta.textContent = pool
+      poolName.textContent = pool?.poolName ?? "Aucune pool";
+      poolInline.title = pool
         ? `${pool.tokenSymbol}/SOL · ${shortAddress(pool.poolAddress)} · ${shortAddress(pool.walletAddress)}`
         : (message ?? "Ouvre une page DLMM token/SOL");
     },
@@ -310,11 +310,7 @@ export function mountUI(handlers: UIHandlers): QuickSetupUI {
         ${nonRefundable}
         <div class="metric"><span>Stratégie</span><strong>${strategyLabel(preview.preset.strategy)}</strong></div>
         <div class="metric"><span>Allocation</span><strong>${preview.allocationSol.toFixed(4)} SOL</strong></div>
-        <div class="metric price-wide"><span>Range réelle</span><strong>${price(preview.minPrice)} → ${price(preview.maxPrice)} SOL/token · ${preview.binCount} bins</strong></div>
-        <div class="metric"><span>Portfolio</span><strong>${preview.portfolioText}</strong></div>
-        <div class="metric"><span>Après création</span><strong>${Math.max(0, preview.remainingSol).toFixed(4)} SOL</strong></div>
-        <div class="metric"><span>Coût total estimé</span><strong>≈ ${preview.rentAndFeesSol.toFixed(5)} SOL</strong></div>
-        <div class="metric"><span>Prix SOL</span><strong>${preview.solUsdPrice ? `$${preview.solUsdPrice.toFixed(2)}` : "Mode SOL"}</strong></div>`;
+        <div class="metric price-wide"><span>Range réelle</span><strong>${price(preview.minPrice)} → ${price(preview.maxPrice)} SOL/token · ${preview.binCount} bins</strong></div>`;
       createButton.disabled = busy || !preview.canCreate;
       if (preview.blocker) this.setError(preview.blocker);
       else this.setIdle("Configuration prête. Vérifie puis crée la position.");

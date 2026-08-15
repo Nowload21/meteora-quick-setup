@@ -90,10 +90,10 @@ export function normalizeSettings(value: Partial<Settings> | undefined): Setting
       x: typeof panel.x === "number" && Number.isFinite(panel.x) ? panel.x : null,
       y: typeof panel.y === "number" && Number.isFinite(panel.y) ? panel.y : null,
       width: typeof panel.width === "number" && Number.isFinite(panel.width)
-        ? Math.min(520, Math.max(240, panel.width))
+        ? Math.min(400, Math.max(240, panel.width))
         : null,
       height: typeof panel.height === "number" && Number.isFinite(panel.height)
-        ? Math.max(260, panel.height)
+        ? Math.min(620, Math.max(260, panel.height))
         : null,
       pinned: panel.pinned === true,
       collapsed: panel.collapsed === true
