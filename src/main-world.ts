@@ -1,5 +1,6 @@
 import DLMM, { StrategyType, getPriceOfBinByBinId } from "@meteora-ag/dlmm";
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   Keypair,
@@ -21,7 +22,7 @@ import { mountUI, type PoolView, type PreviewView, type QuickSetupUI, type Resul
 
 const PAGE_SOURCE = "meteora-quick-setup";
 const BRIDGE_SOURCE = "meteora-quick-setup-bridge";
-const VERSION = "0.1.5";
+const VERSION = "0.1.6";
 const MAX_COMPUTE_UNITS = 1_400_000;
 
 interface WalletProvider {
@@ -476,7 +477,7 @@ async function createPosition(): Promise<void> {
       singleSidedX: fresh.pool.solIsTokenX
     };
     const slippageOneBinPct = fresh.pool.binStep / 100;
-    const built = await fresh.pool.dlmm.initializeMultiplePositionAndAddLiquidityByStrategy(
+    const built = await fresh.pool.dlmm.initializeMultiplePositionAndAddLiquidityByStrategy2(
       keypairGenerator,
       totalXAmount,
       totalYAmount,
@@ -487,31 +488,25 @@ async function createPosition(): Promise<void> {
     );
 
     const blockhash = await fresh.pool.connection.getLatestBlockhash("confirmed");
+    const lookupTableAccounts: AddressLookupTableAccount[] = [];
+    if (built.lookupTableAddress) {
+      const lookupTable = await fresh.pool.connection.getAddressLookupTable(built.lookupTableAddress);
+      if (!lookupTable.value) throw new Error("Table d’adresses Meteora introuvable.");
+      lookupTableAccounts.push(lookupTable.value);
+    }
     const transactions: VersionedTransaction[] = [];
     const groupSizes: number[] = [];
     for (const item of built.instructionsByPositions) {
       const positionTransactions: VersionedTransaction[] = [];
-      const initMessage = new TransactionMessage({
-        payerKey: wallet,
-        recentBlockhash: blockhash.blockhash,
-        instructions: [
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityMicroLamports() }),
-          ...item.initializeAtaIxs,
-          item.initializePositionIx
-        ]
-      }).compileToV0Message();
-      const initTransaction = new VersionedTransaction(initMessage);
-      initTransaction.sign([item.positionKeypair]);
-      positionTransactions.push(initTransaction);
-
-      for (const instructions of item.addLiquidityIxs) {
+      for (const instructions of item.transactionInstructions) {
         const priorityIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityMicroLamports() });
         const message = new TransactionMessage({
           payerKey: wallet,
           recentBlockhash: blockhash.blockhash,
           instructions: [priorityIx, ...instructions]
-        }).compileToV0Message();
+        }).compileToV0Message(lookupTableAccounts);
         const transaction = new VersionedTransaction(message);
+        transaction.sign([item.positionKeypair]);
         positionTransactions.push(transaction);
       }
       groupSizes.push(positionTransactions.length);
@@ -519,36 +514,18 @@ async function createPosition(): Promise<void> {
     }
     if (!transactions.length) throw new Error("Meteora n’a construit aucune transaction.");
 
-    console.info("[DEBUG-h3p7] Lot Meteora construit", {
-      positions: built.instructionsByPositions.map((item, index) => ({
-        index,
-        position: item.positionKeypair.publicKey.toBase58(),
-        transactions: groupSizes[index],
-        addLiquidityTransactions: item.addLiquidityIxs.length
-      })),
-      totalTransactions: transactions.length
-    });
-
     if (settings.simulateBeforeSend) {
-      ui.setBusy(`Simulation de ${groupSizes.length} création(s)…`);
-      let offset = 0;
-      for (const size of groupSizes) {
-        const transaction = transactions[offset];
+      ui.setBusy(`Simulation de ${transactions.length} transaction(s)…`);
+      for (const transaction of transactions) {
         const simulation = await fresh.pool.connection.simulateTransaction(transaction, { sigVerify: false });
         if (simulation.value.err) {
           const log = simulation.value.logs?.slice(-4).join(" | ");
           throw new Error(log ? `Simulation refusée : ${log}` : `Simulation refusée : ${JSON.stringify(simulation.value.err)}`);
         }
-        offset += size;
       }
     }
 
     ui.setBusy("Signature wallet…");
-    console.info("[DEBUG-h3p7] Méthode de signature wallet", {
-      signAllTransactions: typeof provider.signAllTransactions === "function",
-      signTransaction: typeof provider.signTransaction === "function",
-      groupSizes
-    });
     let signed: VersionedTransaction[];
     if (provider.signAllTransactions) {
       signed = await provider.signAllTransactions(transactions);
