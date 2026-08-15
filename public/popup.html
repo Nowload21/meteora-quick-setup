@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meteora Quick Setup</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <header>
+      <div class="brand-mark">M</div>
+      <div>
+        <h1>Quick Setup</h1>
+        <p>Meteora DLMM · SOL-side</p>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>Portfolio</h2>
+        <div class="portfolio-row">
+          <input id="portfolioValue" type="number" min="0" step="any" placeholder="0">
+          <select id="portfolioUnit">
+            <option value="SOL">SOL</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>Presets</h2>
+          <span>6 max</span>
+        </div>
+        <div id="presets" class="presets"></div>
+      </section>
+
+      <section>
+        <h2>Exécution</h2>
+        <label class="field">
+          <span>RPC</span>
+          <input id="rpcUrl" type="url" spellcheck="false">
+        </label>
+        <div class="two-cols">
+          <label class="field">
+            <span>Priorité</span>
+            <select id="priorityLevel">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="veryHigh">Very high</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Plafond SOL</span>
+            <input id="maxPrioritySol" type="number" min="0" step="0.0001">
+          </label>
+        </div>
+        <label class="toggle-row">
+          <input id="simulateBeforeSend" type="checkbox">
+          <span>Simuler avant l’envoi</span>
+        </label>
+      </section>
+    </main>
+
+    <footer>
+      <button id="save" type="button">Enregistrer</button>
+      <span id="status" aria-live="polite"></span>
+    </footer>
+    <script src="popup.js"></script>
+  </body>
+</html>
