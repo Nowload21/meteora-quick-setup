@@ -1,6 +1,5 @@
 import DLMM, { StrategyType, getPriceOfBinByBinId } from "@meteora-ag/dlmm";
 import {
-  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   Keypair,
@@ -22,7 +21,7 @@ import { mountUI, type PoolView, type PreviewView, type QuickSetupUI, type Resul
 
 const PAGE_SOURCE = "meteora-quick-setup";
 const BRIDGE_SOURCE = "meteora-quick-setup-bridge";
-const VERSION = "0.1.8";
+const VERSION = "0.1.9";
 const MAX_COMPUTE_UNITS = 1_400_000;
 
 interface WalletProvider {
@@ -443,6 +442,18 @@ async function confirmTransaction(
   }
 }
 
+async function signSingleTransaction(
+  provider: WalletProvider,
+  transaction: VersionedTransaction
+): Promise<VersionedTransaction> {
+  if (provider.signTransaction) return provider.signTransaction(transaction);
+  if (provider.signAllTransactions) {
+    const [signed] = await provider.signAllTransactions([transaction]);
+    if (signed) return signed;
+  }
+  throw new Error("Ce wallet ne permet pas de signer la transaction.");
+}
+
 async function createPosition(): Promise<void> {
   if (creating) return;
   const selected = ui.selectedPreset();
@@ -477,7 +488,7 @@ async function createPosition(): Promise<void> {
       singleSidedX: fresh.pool.solIsTokenX
     };
     const slippageOneBinPct = fresh.pool.binStep / 100;
-    const built = await fresh.pool.dlmm.initializeMultiplePositionAndAddLiquidityByStrategy2(
+    const built = await fresh.pool.dlmm.initializeMultiplePositionAndAddLiquidityByStrategy(
       keypairGenerator,
       totalXAmount,
       totalYAmount,
@@ -486,65 +497,40 @@ async function createPosition(): Promise<void> {
       wallet,
       slippageOneBinPct
     );
+    if (!built.instructionsByPositions.length) throw new Error("Meteora n’a construit aucune position.");
 
-    const blockhash = await fresh.pool.connection.getLatestBlockhash("confirmed");
-    const lookupTableAccounts: AddressLookupTableAccount[] = [];
-    if (built.lookupTableAddress) {
-      const lookupTable = await fresh.pool.connection.getAddressLookupTable(built.lookupTableAddress);
-      if (!lookupTable.value) throw new Error("Table d’adresses Meteora introuvable.");
-      lookupTableAccounts.push(lookupTable.value);
-    }
-    const transactions: VersionedTransaction[] = [];
-    const groupSizes: number[] = [];
-    for (const item of built.instructionsByPositions) {
-      const positionTransactions: VersionedTransaction[] = [];
-      for (const instructions of item.transactionInstructions) {
-        const priorityIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityMicroLamports() });
+    const signatures: string[] = [];
+    for (const [positionIndex, item] of built.instructionsByPositions.entries()) {
+      const steps = [
+        [...item.initializeAtaIxs, item.initializePositionIx],
+        ...item.addLiquidityIxs
+      ];
+      for (const [stepIndex, instructions] of steps.entries()) {
+        const step = stepIndex + 1;
+        const positionNumber = positionIndex + 1;
+        ui.setBusy(`Position ${positionNumber}/${built.instructionsByPositions.length} · étape ${step}/${steps.length}…`);
+        const blockhash = await fresh.pool.connection.getLatestBlockhash("confirmed");
         const message = new TransactionMessage({
           payerKey: wallet,
           recentBlockhash: blockhash.blockhash,
-          instructions: [priorityIx, ...instructions]
-        }).compileToV0Message(lookupTableAccounts);
+          instructions: [
+            ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityMicroLamports() }),
+            ...instructions
+          ]
+        }).compileToV0Message();
         const transaction = new VersionedTransaction(message);
-        transaction.sign([item.positionKeypair]);
-        positionTransactions.push(transaction);
-      }
-      groupSizes.push(positionTransactions.length);
-      transactions.push(...positionTransactions);
-    }
-    if (!transactions.length) throw new Error("Meteora n’a construit aucune transaction.");
+        if (stepIndex === 0) transaction.sign([item.positionKeypair]);
 
-    if (settings.simulateBeforeSend) {
-      ui.setBusy(`Simulation de ${transactions.length} transaction(s)…`);
-      for (const transaction of transactions) {
-        const simulation = await fresh.pool.connection.simulateTransaction(transaction, { sigVerify: false });
-        if (simulation.value.err) {
-          const log = simulation.value.logs?.slice(-4).join(" | ");
-          throw new Error(log ? `Simulation refusée : ${log}` : `Simulation refusée : ${JSON.stringify(simulation.value.err)}`);
+        if (settings.simulateBeforeSend) {
+          const simulation = await fresh.pool.connection.simulateTransaction(transaction, { sigVerify: false });
+          if (simulation.value.err) {
+            const log = simulation.value.logs?.slice(-4).join(" | ");
+            throw new Error(log ? `Simulation refusée : ${log}` : `Simulation refusée : ${JSON.stringify(simulation.value.err)}`);
+          }
         }
-      }
-    }
 
-    ui.setBusy("Signature wallet…");
-    let signed: VersionedTransaction[];
-    if (provider.signAllTransactions) {
-      signed = await provider.signAllTransactions(transactions);
-    } else if (provider.signTransaction) {
-      signed = [];
-      for (const transaction of transactions) signed.push(await provider.signTransaction(transaction));
-    } else {
-      throw new Error("Ce wallet ne permet pas de signer les transactions.");
-    }
-
-    ui.setBusy("Envoi séquentiel sur Solana…");
-    const signatures: string[] = [];
-    let signedOffset = 0;
-    for (let groupIndex = 0; groupIndex < groupSizes.length; groupIndex++) {
-      const size = groupSizes[groupIndex];
-      for (let transactionIndex = 0; transactionIndex < size; transactionIndex++) {
-        ui.setBusy(`Position ${groupIndex + 1}/${groupSizes.length} · étape ${transactionIndex + 1}/${size}…`);
-        const transaction = signed[signedOffset++];
-        const signature = await fresh.pool.connection.sendRawTransaction(transaction.serialize(), {
+        const signed = await signSingleTransaction(provider, transaction);
+        const signature = await fresh.pool.connection.sendRawTransaction(signed.serialize(), {
           skipPreflight: !settings.simulateBeforeSend,
           maxRetries: 3
         });

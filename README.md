@@ -8,18 +8,18 @@ Extension Chrome indépendante pour préparer et créer rapidement des positions
 
 Télécharge le fichier prêt à installer :
 
-**[Télécharger Meteora Quick Setup](https://github.com/Nowload21/meteora-quick-setup/releases/latest/download/meteora-quick-setup-v0.1.8.zip)**
+**[Télécharger Meteora Quick Setup](https://github.com/Nowload21/meteora-quick-setup/releases/latest/download/meteora-quick-setup-v0.1.9.zip)**
 
 ### 2. Décompresser le fichier
 
-Double-clique sur le fichier ZIP téléchargé. Un dossier `meteora-quick-setup-v0.1.8` sera créé.
+Double-clique sur le fichier ZIP téléchargé. Un dossier `meteora-quick-setup-v0.1.9` sera créé.
 
 ### 3. Charger l’extension dans Chrome ou Brave
 
 1. Ouvre `chrome://extensions` dans la barre d’adresse.
 2. Active **Mode développeur** en haut à droite.
 3. Clique sur **Charger l’extension non empaquetée**.
-4. Sélectionne le dossier `meteora-quick-setup-v0.1.8` décompressé.
+4. Sélectionne le dossier `meteora-quick-setup-v0.1.9` décompressé.
 5. Épingle **Meteora Quick Setup** dans la barre des extensions.
 
 L’extension est prête. Ouvre ensuite une pool sur `app.meteora.ag/dlmm/...` ou `www.meteora.ag/dlmm/...` avec ton wallet déjà connecté.
